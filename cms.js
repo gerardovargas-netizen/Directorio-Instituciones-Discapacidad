@@ -13,8 +13,11 @@ const CMS_FIELDS = [
   { name: 'etiquetas', label: 'Etiquetas' },
 ];
 
-const SERVER_HELP_MESSAGE =
+const LOCAL_SERVER_MESSAGE =
   'No se pudo conectar con el servidor. En la carpeta del proyecto ejecuta: python3 server.py y abre http://localhost:8000';
+
+const STATIC_HOST_MESSAGE =
+  'Agregar registros solo está disponible en local con python3 server.py. En GitHub Pages el directorio se actualiza editando dir_inst_apoyo.csv en el repositorio.';
 
 function buildCMSForm() {
   const form = document.getElementById('cms-form');
@@ -53,6 +56,11 @@ function setupCMSAccordion() {
 async function checkCMSServer() {
   const status = document.getElementById('cms-status');
 
+  if (!IS_LOCAL_SERVER) {
+    status.textContent = STATIC_HOST_MESSAGE;
+    return;
+  }
+
   try {
     const response = await fetch(API_HEALTH_URL);
 
@@ -62,11 +70,15 @@ async function checkCMSServer() {
 
     status.textContent = '';
   } catch (error) {
-    status.textContent = SERVER_HELP_MESSAGE;
+    status.textContent = LOCAL_SERVER_MESSAGE;
   }
 }
 
 async function submitEntry(data) {
+  if (!IS_LOCAL_SERVER) {
+    throw new Error(STATIC_HOST_MESSAGE);
+  }
+
   const response = await fetch(API_ENTRIES_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -83,7 +95,7 @@ async function submitEntry(data) {
       }
     } catch (error) {
       if (response.status === 501) {
-        message = SERVER_HELP_MESSAGE;
+        message = LOCAL_SERVER_MESSAGE;
       }
     }
 
@@ -114,7 +126,7 @@ async function handleCMSSubmit(event) {
     }
   } catch (error) {
     status.textContent =
-      error instanceof TypeError ? SERVER_HELP_MESSAGE : error.message;
+      error instanceof TypeError ? LOCAL_SERVER_MESSAGE : error.message;
     console.error(error);
   } finally {
     submitButton.disabled = false;

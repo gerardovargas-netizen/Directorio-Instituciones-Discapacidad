@@ -4,6 +4,10 @@ const ICON_PATHS = {
   switchPalette: 'icons/switchPalette.svg',
 };
 
+function iconUrl(relativePath) {
+  return assetUrl(relativePath);
+}
+
 async function loadIcon(path) {
   const response = await fetch(path);
 
@@ -19,7 +23,7 @@ async function setButtonIcon(button, iconName) {
     return;
   }
 
-  const svg = await loadIcon(ICON_PATHS[iconName]);
+  const svg = await loadIcon(iconUrl(ICON_PATHS[iconName]));
   button.innerHTML = svg;
   button.querySelector('svg')?.setAttribute('aria-hidden', 'true');
 }

@@ -1,15 +1,33 @@
-const APP_ORIGIN = (() => {
+function getBaseUrl() {
   if (window.location.protocol === 'file:') {
-    return 'http://127.0.0.1:8000';
+    return 'http://127.0.0.1:8000/';
   }
 
-  if (window.location.port && window.location.port !== '8000') {
-    return 'http://127.0.0.1:8000';
+  const url = new URL(window.location.href);
+
+  if (url.pathname.endsWith('/')) {
+    return url.href;
   }
 
-  return '';
-})();
+  if (/\.[a-z0-9]+$/i.test(url.pathname)) {
+    url.pathname = url.pathname.slice(0, url.pathname.lastIndexOf('/') + 1);
+    return url.href;
+  }
 
-const CSV_PATH = `${APP_ORIGIN}/dir_inst_apoyo.csv`;
-const API_ENTRIES_URL = `${APP_ORIGIN}/api/entries`;
-const API_HEALTH_URL = `${APP_ORIGIN}/api/health`;
+  url.pathname += '/';
+  return url.href;
+}
+
+function assetUrl(relativePath) {
+  return new URL(relativePath, getBaseUrl()).href;
+}
+
+const IS_LOCAL_SERVER =
+  window.location.protocol === 'file:' ||
+  ((window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1') &&
+    window.location.port === '8000');
+
+const CSV_PATH = assetUrl('dir_inst_apoyo.csv');
+const API_ENTRIES_URL = assetUrl('api/entries');
+const API_HEALTH_URL = assetUrl('api/health');
