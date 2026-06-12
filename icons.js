@@ -5,7 +5,7 @@ const ICON_PATHS = {
 };
 
 function iconUrl(relativePath) {
-  return assetUrl(relativePath);
+  return relativePath;
 }
 
 async function loadIcon(path) {

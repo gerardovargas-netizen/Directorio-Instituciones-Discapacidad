@@ -411,22 +411,32 @@ function renderDirectory(items) {
 }
 
 async function loadDirectory() {
-  const response = await fetch(CSV_PATH, { cache: 'no-store' });
+  const list = document.getElementById('directory-list');
 
-  if (!response.ok) {
-    throw new Error(`Failed to load ${CSV_PATH}`);
+  try {
+    const response = await fetch(CSV_PATH, { cache: 'no-store' });
+
+    if (!response.ok) {
+      throw new Error(`Failed to load ${CSV_PATH} (${response.status})`);
+    }
+
+    const text = (await response.text()).replace(/^\uFEFF/, '');
+    allItems = parseCSV(text).sort((a, b) =>
+      a.nombreInst.localeCompare(b.nombreInst, undefined, { sensitivity: 'base' })
+    );
+    activeLetter = null;
+    activeTag = null;
+    updateDirectoryView();
+  } catch (error) {
+    list.replaceChildren();
+    const message = document.createElement('p');
+    message.className = 'directory-error';
+    message.textContent =
+      'No se pudo cargar el directorio. Verifica que dir_inst_apoyo.csv esté publicado y recarga la página.';
+    list.appendChild(message);
+    console.error(error);
   }
-
-  const text = (await response.text()).replace(/^\uFEFF/, '');
-  allItems = parseCSV(text).sort((a, b) =>
-    a.nombreInst.localeCompare(b.nombreInst, undefined, { sensitivity: 'base' })
-  );
-  activeLetter = null;
-  activeTag = null;
-  updateDirectoryView();
 }
 
 setupLightbox();
-loadDirectory().catch((error) => {
-  console.error(error);
-});
+loadDirectory();
