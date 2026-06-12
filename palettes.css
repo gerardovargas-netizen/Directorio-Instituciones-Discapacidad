@@ -1,0 +1,78 @@
+:root,
+[data-palette='lightPalette'] {
+  --palette-lavender-grey: #8e9aaf;
+  --palette-thistle: #cbc0d3;
+  --palette-soft-blush: #efd3d7;
+  --palette-lavender-veil: #feeafa;
+  --palette-lavender: #dee2ff;
+
+  --color-bg: var(--palette-lavender-veil);
+  --color-bg-gradient-end: var(--palette-lavender);
+  --color-surface: rgb(255 255 255 / 88%);
+  --color-surface-solid: #fff;
+  --color-surface-muted: var(--palette-lavender);
+  --color-surface-accent: var(--palette-soft-blush);
+
+  --color-text: #4a5164;
+  --color-text-heading: #3a4050;
+  --color-text-muted: var(--palette-lavender-grey);
+  --color-text-on-primary: #fff;
+
+  --color-border: var(--palette-thistle);
+  --color-border-strong: var(--palette-lavender-grey);
+
+  --color-primary: var(--palette-lavender-grey);
+  --color-primary-hover: #7a8699;
+  --color-primary-active: #6b778a;
+
+  --color-tag-bg: var(--palette-lavender);
+  --color-tag-border: var(--palette-thistle);
+  --color-tag-hover-bg: var(--palette-soft-blush);
+  --color-tag-active-bg: var(--palette-soft-blush);
+  --color-tag-active-border: var(--palette-lavender-grey);
+
+  --color-shadow: rgb(142 154 175 / 18%);
+  --color-shadow-hover: rgb(142 154 175 / 28%);
+  --color-backdrop: rgb(142 154 175 / 55%);
+
+  --color-focus-ring: var(--palette-lavender-grey);
+}
+
+[data-palette='darkPalette'] {
+  --palette-icy-blue: #a9cef4;
+  --palette-iron-grey: #36494e;
+  --palette-black: #000000;
+  --palette-steel-blue: #7ea0b7;
+  --palette-blue-slate: #597081;
+
+  --color-bg: var(--palette-iron-grey);
+  --color-bg-gradient-end: var(--palette-black);
+  --color-surface: rgb(54 73 78 / 92%);
+  --color-surface-solid: #3f555c;
+  --color-surface-muted: var(--palette-blue-slate);
+  --color-surface-accent: rgb(89 112 129 / 55%);
+
+  --color-text: #d8e8f4;
+  --color-text-heading: var(--palette-icy-blue);
+  --color-text-muted: var(--palette-steel-blue);
+  --color-text-on-primary: var(--palette-iron-grey);
+
+  --color-border: var(--palette-blue-slate);
+  --color-border-strong: var(--palette-steel-blue);
+
+  --color-primary: var(--palette-icy-blue);
+  --color-primary-hover: #bddaf7;
+  --color-primary-active: #93bce8;
+
+  --color-tag-bg: rgb(89 112 129 / 45%);
+  --color-tag-border: var(--palette-steel-blue);
+  --color-tag-hover-bg: rgb(126 160 183 / 35%);
+  --color-tag-active-bg: rgb(169 206 244 / 22%);
+  --color-tag-active-border: var(--palette-icy-blue);
+
+  --color-shadow: rgb(0 0 0 / 35%);
+  --color-shadow-hover: rgb(0 0 0 / 50%);
+  --color-backdrop: rgb(0 0 0 / 70%);
+
+  --color-focus-ring: var(--palette-icy-blue);
+}

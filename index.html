@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es" data-palette="lightPalette" data-font="default">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directorio de Instituciones de Apoyo a Personas con Discapacidad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="palettes.css">
+  <link rel="stylesheet" href="fonts.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <h1 class="site-header__title">Directorio de Instituciones de Apoyo a Personas con Discapacidad</h1>
+  </header>
+
+  <section id="options" aria-label="Options">
+    <nav class="options-menu" aria-label="Options">
+      <button
+        type="button"
+        id="paletteSwitch"
+        class="options-menu__button options-menu__button--icon"
+        aria-label="Cambiar a paleta oscura"
+      ></button>
+      <button
+        type="button"
+        id="fontSwitch"
+        class="options-menu__button options-menu__button--icon"
+        aria-label="Cambiar fuente"
+      ></button>
+    </nav>
+  </section>
+
+  <section id="cms" aria-label="CMS">
+    <button
+      type="button"
+      id="cms-toggle"
+      class="cms-form__toggle"
+      aria-expanded="false"
+      aria-controls="cms-form-panel"
+    >
+      Añadir nuevo registro
+    </button>
+    <div id="cms-form-panel" class="cms-form-panel">
+      <div class="cms-form-panel__inner">
+        <form id="cms-form" class="cms-form">
+          <div class="cms-form__actions">
+            <button type="submit" class="cms-form__submit">Enviar</button>
+            <p id="cms-status" class="cms-form__status" aria-live="polite"></p>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <section id="directory" aria-label="Directory">
+    <nav id="directory-filter" class="directory-filter" aria-label="Filtrar por letra"></nav>
+    <div id="directory-tag-filter" class="directory-tag-filter" hidden></div>
+    <div id="directory-list" class="directory-list"></div>
+  </section>
+
+  <div id="lightbox" class="lightbox" hidden aria-hidden="true">
+    <div class="lightbox__backdrop"></div>
+    <div class="lightbox__dialog" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
+      <button type="button" class="lightbox__close" aria-label="Cerrar"></button>
+      <div id="lightbox-content" class="lightbox__content"></div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="icons.js"></script>
+  <script src="options.js"></script>
+  <script src="directory.js"></script>
+  <script src="cms.js"></script>
+</body>
+</html>
