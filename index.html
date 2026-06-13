@@ -62,18 +62,24 @@
     </button>
     <div id="cms-form-panel" class="cms-form-panel">
       <div class="cms-form-panel__inner">
-        <form id="cms-form" class="cms-form">
-          <div class="cms-form__actions">
-            <button type="submit" class="cms-form__submit">Enviar</button>
-            <p id="cms-status" class="cms-form__status" aria-live="polite"></p>
-          </div>
-        </form>
+        <iframe
+          class="cms-form__iframe"
+          title="Información de Directorio DMRM"
+          src="https://docs.google.com/forms/d/e/1FAIpQLScgo2hE0kW7emxhQSKrZGPhw9finEgiNKypyy9G2v8UpkCr2w/viewform?embedded=true"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
       </div>
     </div>
   </section>
 
   <section id="directory" aria-label="Directory">
     <nav id="directory-filter" class="directory-filter" aria-label="Filtrar por letra"></nav>
+    <div id="directory-tags-panel" class="directory-tags-panel" aria-hidden="true">
+      <div class="directory-tags-panel__inner">
+        <div id="directory-tags-list" class="directory-tags-list"></div>
+      </div>
+    </div>
     <div id="directory-tag-filter" class="directory-tag-filter" hidden></div>
     <div id="directory-list" class="directory-list"></div>
   </section>
@@ -89,7 +95,7 @@
   <script src="config.js"></script>
   <script src="icons.js"></script>
   <script src="options.js"></script>
-  <script src="directory.js"></script>
   <script src="cms.js"></script>
+  <script src="directory.js"></script>
 </body>
 </html>

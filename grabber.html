@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grabber test</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 2rem 1rem;
+      font-family: system-ui, sans-serif;
+      background: #f5f5f5;
+    }
+
+    main {
+      max-width: 32rem;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.25rem;
+      text-align: center;
+    }
+
+    .grabber-card {
+      padding: 1.25rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      background: #fff;
+    }
+
+    .grabber-field {
+      margin-bottom: 0.75rem;
+    }
+
+    .grabber-label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 0.25rem;
+    }
+
+    .grabber-value {
+      white-space: pre-wrap;
+    }
+
+    .grabber-status,
+    .grabber-error {
+      text-align: center;
+    }
+
+    .grabber-error {
+      color: #a00;
+    }
+
+    button {
+      display: block;
+      margin: 1rem auto 0;
+      padding: 0.5rem 1rem;
+      border: 1px solid #333;
+      border-radius: 0.375rem;
+      background: #333;
+      color: #fff;
+      font: inherit;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Random item from Google Sheet</h1>
+    <p id="status" class="grabber-status">Loading CSV…</p>
+    <div id="output" class="grabber-card" hidden></div>
+    <button type="button" id="reload" hidden>Pick another</button>
+  </main>
+
+  <script>
+    const SHEET_CSV_URL =
+      'https://docs.google.com/spreadsheets/d/e/2PACX-1vRY10w3OLk-hEaW8sASNZfGVXD0B0qp7j84T9Rmnmnp6Lw3Ts9W2oeVGzoi9vh1NYeHCKsi1kBLTnXL/pub?output=csv';
+
+    function parseCSV(text) {
+      const rows = [];
+      let row = [];
+      let field = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < text.length; i += 1) {
+        const char = text[i];
+
+        if (char === '"') {
+          if (inQuotes && text[i + 1] === '"') {
+            field += '"';
+            i += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+        } else if (char === ',' && !inQuotes) {
+          row.push(field);
+          field = '';
+        } else if ((char === '\n' || char === '\r') && !inQuotes) {
+          if (char === '\r' && text[i + 1] === '\n') {
+            i += 1;
+          }
+
+          row.push(field);
+          field = '';
+
+          if (row.some((value) => value.trim())) {
+            rows.push(row);
+          }
+
+          row = [];
+        } else {
+          field += char;
+        }
+      }
+
+      if (field.length || row.length) {
+        row.push(field);
+
+        if (row.some((value) => value.trim())) {
+          rows.push(row);
+        }
+      }
+
+      if (!rows.length) {
+        return [];
+      }
+
+      const headers = rows[0];
+
+      return rows.slice(1).map((values) => {
+        const item = {};
+
+        headers.forEach((header, index) => {
+          item[header] = values[index] ?? '';
+        });
+
+        return item;
+      });
+    }
+
+    function pickRandomItem(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function renderItem(item) {
+      const output = document.getElementById('output');
+      output.replaceChildren();
+
+      Object.entries(item).forEach(([label, value]) => {
+        const field = document.createElement('div');
+        field.className = 'grabber-field';
+
+        const labelElement = document.createElement('span');
+        labelElement.className = 'grabber-label';
+        labelElement.textContent = `${label}:`;
+
+        const valueElement = document.createElement('span');
+        valueElement.className = 'grabber-value';
+        valueElement.textContent = value;
+
+        field.appendChild(labelElement);
+        field.appendChild(valueElement);
+        output.appendChild(field);
+      });
+
+      output.hidden = false;
+    }
+
+    async function loadRandomItem() {
+      const status = document.getElementById('status');
+      const reload = document.getElementById('reload');
+      const output = document.getElementById('output');
+
+      status.className = 'grabber-status';
+      status.textContent = 'Loading CSV…';
+      output.hidden = true;
+      reload.hidden = true;
+
+      try {
+        const response = await fetch(SHEET_CSV_URL, { cache: 'no-store' });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const text = (await response.text()).replace(/^\uFEFF/, '');
+        const items = parseCSV(text).filter((item) =>
+          Object.values(item).some((value) => value.trim())
+        );
+
+        if (!items.length) {
+          throw new Error('No rows found in CSV.');
+        }
+
+        renderItem(pickRandomItem(items));
+        status.textContent = `Showing 1 random item from ${items.length} rows.`;
+        reload.hidden = false;
+      } catch (error) {
+        status.className = 'grabber-error';
+        status.textContent = `Failed to load CSV: ${error.message}`;
+        console.error(error);
+      }
+    }
+
+    document.getElementById('reload').addEventListener('click', loadRandomItem);
+    loadRandomItem();
+  </script>
+</body>
+</html>

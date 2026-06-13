@@ -3,6 +3,7 @@ const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 let allItems = [];
 let activeLetter = null;
 let activeTag = null;
+let tagsPanelOpen = false;
 
 function getFirstLetter(name) {
   const trimmed = name.trim().replace(/^["']+/, '');
@@ -54,9 +55,22 @@ function getFilteredItems() {
   return items;
 }
 
+function getAllUniqueTags(items) {
+  const tags = new Set();
+
+  items.forEach((item) => {
+    parseTags(item.etiquetas).forEach((tag) => tags.add(tag));
+  });
+
+  return [...tags].sort((a, b) =>
+    a.localeCompare(b, undefined, { sensitivity: 'base' })
+  );
+}
+
 function updateDirectoryView() {
   const presentLetters = getPresentLetters(allItems);
   renderAlphabetFilter(presentLetters);
+  renderTagsPanel();
   renderActiveTagFilter();
   renderDirectory(getFilteredItems());
 }
@@ -97,6 +111,41 @@ function renderActiveTagFilter() {
   chip.appendChild(close);
   chip.addEventListener('click', clearActiveTag);
   container.appendChild(chip);
+}
+
+function renderTagsPanel() {
+  const panel = document.getElementById('directory-tags-panel');
+  const list = document.getElementById('directory-tags-list');
+  const toggle = document.getElementById('directory-etiquetas-toggle');
+
+  panel.classList.toggle('directory-tags-panel--open', tagsPanelOpen);
+  panel.setAttribute('aria-hidden', String(!tagsPanelOpen));
+
+  if (toggle) {
+    toggle.setAttribute('aria-expanded', String(tagsPanelOpen));
+    toggle.classList.toggle('directory-filter__etiquetas--active', tagsPanelOpen);
+  }
+
+  if (!tagsPanelOpen) {
+    list.replaceChildren();
+    return;
+  }
+
+  list.replaceChildren(
+    ...getAllUniqueTags(allItems).map((tag) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'tag tag--clickable';
+
+      if (activeTag === tag) {
+        button.classList.add('tag--active');
+      }
+
+      button.textContent = tag;
+      button.addEventListener('click', () => setActiveTag(tag));
+      return button;
+    })
+  );
 }
 
 function renderAlphabetFilter(presentLetters) {
@@ -147,6 +196,25 @@ function renderAlphabetFilter(presentLetters) {
   });
 
   filter.appendChild(todosButton);
+
+  const etiquetasButton = document.createElement('button');
+  etiquetasButton.type = 'button';
+  etiquetasButton.id = 'directory-etiquetas-toggle';
+  etiquetasButton.className = 'directory-filter__etiquetas';
+  etiquetasButton.textContent = 'Etiquetas';
+  etiquetasButton.setAttribute('aria-expanded', String(tagsPanelOpen));
+  etiquetasButton.setAttribute('aria-controls', 'directory-tags-panel');
+
+  if (tagsPanelOpen) {
+    etiquetasButton.classList.add('directory-filter__etiquetas--active');
+  }
+
+  etiquetasButton.addEventListener('click', () => {
+    tagsPanelOpen = !tagsPanelOpen;
+    renderTagsPanel();
+  });
+
+  filter.appendChild(etiquetasButton);
 }
 
 const ITEM_FIELDS = [
@@ -163,6 +231,70 @@ const ITEM_FIELDS = [
   { key: 'procesoSolicApoyo', label: 'Explicación breve para solicitar el servicio' },
   { key: 'etiquetas', label: 'Etiquetas' },
 ];
+
+const HEADER_TO_KEY = {
+  'nombre de la institucion': 'nombreInst',
+  nombreinst: 'nombreInst',
+  'numero de telefono': 'numTel',
+  numtel: 'numTel',
+  'direccion completa': 'dirCompleta',
+  dircompleta: 'dirCompleta',
+  'sitio web': 'sitioWeb',
+  sitioweb: 'sitioWeb',
+  'correo electronico': 'mail',
+  mail: 'mail',
+  'enlace a formulario de contacto o informes': 'enlaceContacto',
+  enlacecontacto: 'enlaceContacto',
+  'nombre del servicio': 'nombreServicio',
+  nombreservicio: 'nombreServicio',
+  'objetivo del servicio': 'objetivoServicio',
+  objetivoservicio: 'objetivoServicio',
+  'poblacion meta': 'poblacionMeta',
+  poblacionmeta: 'poblacionMeta',
+  'reglas de operacion del servicio': 'reglasOperServicio',
+  reglasoperservicio: 'reglasOperServicio',
+  'explicacion breve del proceso para solicitar el servicio': 'procesoSolicApoyo',
+  'explicacion breve para solicitar el servicio': 'procesoSolicApoyo',
+  procesosolicapoyo: 'procesoSolicApoyo',
+  'etiquetas (separadas por coma)': 'etiquetas',
+  etiquetas: 'etiquetas',
+};
+
+function normalizeHeader(header) {
+  return header
+    .trim()
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ');
+}
+
+function normalizeItem(rawItem) {
+  const item = {
+    nombreInst: '',
+    numTel: '',
+    dirCompleta: '',
+    sitioWeb: '',
+    mail: '',
+    enlaceContacto: '',
+    nombreServicio: '',
+    objetivoServicio: '',
+    poblacionMeta: '',
+    reglasOperServicio: '',
+    procesoSolicApoyo: '',
+    etiquetas: '',
+  };
+
+  Object.entries(rawItem).forEach(([header, value]) => {
+    const key = HEADER_TO_KEY[normalizeHeader(header)];
+
+    if (key) {
+      item[key] = value ?? '';
+    }
+  });
+
+  return item;
+}
 
 function parseCSVRow(line) {
   const fields = [];
@@ -421,9 +553,12 @@ async function loadDirectory() {
     }
 
     const text = (await response.text()).replace(/^\uFEFF/, '');
-    allItems = parseCSV(text).sort((a, b) =>
-      a.nombreInst.localeCompare(b.nombreInst, undefined, { sensitivity: 'base' })
-    );
+    allItems = parseCSV(text)
+      .map(normalizeItem)
+      .filter((item) => item.nombreInst.trim())
+      .sort((a, b) =>
+        a.nombreInst.localeCompare(b.nombreInst, undefined, { sensitivity: 'base' })
+      );
     activeLetter = null;
     activeTag = null;
     updateDirectoryView();
@@ -432,7 +567,7 @@ async function loadDirectory() {
     const message = document.createElement('p');
     message.className = 'directory-error';
     message.textContent =
-      'No se pudo cargar el directorio. Verifica que dir_inst_apoyo.csv esté publicado y recarga la página.';
+      'No se pudo cargar el directorio. Verifica la hoja de Google Sheets y recarga la página.';
     list.appendChild(message);
     console.error(error);
   }
