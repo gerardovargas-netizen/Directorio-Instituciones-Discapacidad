@@ -23,9 +23,14 @@ async function setButtonIcon(button, iconName) {
     return;
   }
 
+  const label = button.querySelector('.lightbox__close-label');
   const svg = await loadIcon(iconUrl(ICON_PATHS[iconName]));
   button.innerHTML = svg;
   button.querySelector('svg')?.setAttribute('aria-hidden', 'true');
+
+  if (label) {
+    button.appendChild(label);
+  }
 }
 
 async function initIcons() {
